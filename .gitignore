@@ -1,0 +1,40 @@
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore the virtual environment folder (if you use virtualenv)
+venv/
+env/
+
+# Ignore the Streamlit app cache and session directories
+.streamlit/
+
+# Ignore any temporary or build files
+*.tmp
+*.log
+*.swp
+*.swo
+*.db
+
+# Ignore the downloads folder where the videos or audio are saved
+downloads/
+
+# Ignore any sensitive or private files (if applicable)
+secrets.py
+config.ini
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore the pycache directory
+pycache/
+
+# Ignore the .vscode directory (if you use Visual Studio Code)
+.vscode/
+
+# Ignore the .idea directory (if you use Pycharm)
+.idea/
+
+
+
