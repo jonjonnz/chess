@@ -34,9 +34,10 @@ class Board:
     def display_board(self, screen):
         x = y = 0
         for rows, columns in self.board.items():
-            for piece in columns.values():
+            for piece in reversed(columns.values()):
                 if piece is not None:
-                    screen.blit(piece.image, (x, y))
+                    piece.current_pos = (y, x)
+                    screen.blit(piece.image, (y, x))
                 x += 50
             y += 50
             x = 0
@@ -97,7 +98,7 @@ while running:
             running = False
 
     # Clear the screen
-    screen.fill((1, 255, 255))  # Fills the screen with white color
+    screen.fill((1, 100, 100))  # Fills the screen with white color
 
     # Draw the image on the screen
     new_board.display_board(screen)
