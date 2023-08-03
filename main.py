@@ -6,11 +6,12 @@ class Board:
         self.width = width
         self.height = height
         self.board = self.create_board()
-        self.pieces = []
+        self.pieces = {}
         self.piece_width = 0
         self.piece_height = 0
         self.coord_map = {}
         self.selected = []
+        self.piece_to_move = None
         self.possible_moves = []
         self.attacked_pieces = []
 
@@ -39,7 +40,7 @@ class Board:
     def display_board(self, screen):
         is_light = True
         x = y = 30
-        self.pieces = []
+        self.pieces = {}
         for row, columns in self.board.items():
             for column, piece in columns.items():
                 if (row, column) in self.selected:
@@ -52,7 +53,7 @@ class Board:
                 if piece is not None:
                     self.piece_width = piece.rect.width
                     self.piece_height = piece.rect.height
-                    self.pieces.append(piece)
+                    self.pieces[(row, column)] = piece
                     piece.current_coord = (x + 1, y + 1)
                     screen.blit(piece.image, (x + 1, y + 1, self.piece_width, self.piece_height))
                 is_light = not is_light
@@ -70,8 +71,15 @@ class Board:
         selected = self.coord_map.get([x for x in self.coord_map.keys()][index])
         if selected in self.selected:
             self.selected = []
+            self.piece_to_move = None
         else:
             self.selected = [selected]
+            if self.piece_to_move:
+                self.piece_to_move.move_piece(self.board, self.piece_to_move, selected)
+                self.piece_to_move = None
+                self.selected = []
+            if self.selected and self.pieces.get(self.selected[0]):
+                self.piece_to_move = self.pieces.get(selected)
 
 
 class Piece:
@@ -117,6 +125,12 @@ class Piece:
 
     def move_knight(self):
         pass
+
+    def move_piece(self, board, piece_to_move, pos):
+        board[pos[0]][pos[1]] = piece_to_move
+        old_pos = piece_to_move.get_coord()
+        board[old_pos[0]][old_pos[1]] = None
+        piece_to_move.current_pos = "-".join(pos)
 
 
 pygame.init()
