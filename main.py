@@ -45,6 +45,9 @@ class Board:
             for column, piece in columns.items():
                 if (row, column) in self.selected:
                     pygame.draw.rect(screen, (150, 225, 225), (x + 1, y + 1, self.piece_width, self.piece_height))
+                if (row, column) in self.possible_moves:
+                    pygame.draw.rect(screen, (150, 225, 225), (x + 1, y + 1, self.piece_width, self.piece_height))
+
                 elif is_light:
                     pygame.draw.rect(screen, (225, 225, 225), (x + 1, y + 1, self.piece_width, self.piece_height))
                 else:
@@ -71,15 +74,23 @@ class Board:
         selected = self.coord_map.get([x for x in self.coord_map.keys()][index])
         if selected in self.selected:
             self.selected = []
+            self.possible_moves = []
             self.piece_to_move = None
         else:
             self.selected = [selected]
             if self.piece_to_move:
-                self.piece_to_move.move_piece(self.board, self.piece_to_move, selected)
-                self.piece_to_move = None
-                self.selected = []
-            if self.selected and self.pieces.get(self.selected[0]):
-                self.piece_to_move = self.pieces.get(selected)
+                if selected in self.possible_moves:
+                    self.piece_to_move.move_piece(self.board, self.piece_to_move, selected)
+                    self.piece_to_move = None
+                    self.selected = []
+                    self.possible_moves = []
+            elif self.selected and self.pieces.get(self.selected[0]):
+                self.piece_to_move = self.pieces.get(self.selected[0])
+                self.updated_possible_moves()
+
+    def updated_possible_moves(self):
+        if self.piece_to_move.name.lower() == 'p':
+            self.piece_to_move.moves_for_pawn(self.possible_moves)
 
 
 class Piece:
@@ -108,22 +119,25 @@ class Piece:
     def get_coord(self):
         return self.current_pos.split('-')
 
-    def move_pawn(self):
+    def moves_for_pawn(self, possibles_moves):
+        curr_pos = self.get_coord()
+        for i in range(3):
+            p = str(int(curr_pos[0]) + i if self.color == 'w' else int(curr_pos[0]) - i)
+            possibles_moves.append((p, curr_pos[1]))
+
+    def moves_for_king(self):
         pass
 
-    def move_king(self):
+    def moves_for_queen(self):
         pass
 
-    def move_queen(self):
+    def moves_for_bishop(self):
         pass
 
-    def move_bishop(self):
+    def moves_for_rook(self):
         pass
 
-    def move_rook(self):
-        pass
-
-    def move_knight(self):
+    def moves_for_knight(self):
         pass
 
     def move_piece(self, board, piece_to_move, pos):
