@@ -91,6 +91,14 @@ class Board:
     def updated_possible_moves(self):
         if self.piece_to_move.name.lower() == 'p':
             self.piece_to_move.moves_for_pawn(self.possible_moves)
+        elif self.piece_to_move.name.lower() == 'k':
+            self.piece_to_move.moves_for_king(self.possible_moves)
+        elif self.piece_to_move.name.lower() == 'q':
+            self.piece_to_move.moves_for_queen(self.possible_moves)
+        elif self.piece_to_move.name.lower() == 'r':
+            self.piece_to_move.moves_for_rook(self.possible_moves)
+        elif self.piece_to_move.name.lower() == 'b':
+            self.piece_to_move.moves_for_bishop(self.possible_moves)
 
 
 class Piece:
@@ -108,6 +116,8 @@ class Piece:
         self.en_passant = False
         self.is_pinned = False
         self.is_forked = False
+        self.temp_map = {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5, "f": 6, "g": 7, "h": 8, }
+        self.temp_map_rev = {1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h'}
 
     def load_image(self):
         name = self.name + '_' if self.name.isupper() else self.name
@@ -119,23 +129,65 @@ class Piece:
     def get_coord(self):
         return self.current_pos.split('-')
 
-    def moves_for_pawn(self, possibles_moves):
+    def moves_for_pawn(self, possible_moves):
         curr_pos = self.get_coord()
         for i in range(3):
             p = str(int(curr_pos[0]) + i if self.color == 'w' else int(curr_pos[0]) - i)
-            possibles_moves.append((p, curr_pos[1]))
+            possible_moves.append((p, curr_pos[1]))
 
-    def moves_for_king(self):
-        pass
+    def moves_for_king(self, possible_moves):
 
-    def moves_for_queen(self):
-        pass
+        curr_pos = self.get_coord()
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                try:
+                    np1 = str(int(curr_pos[0]) + i)
+                    np2 = self.temp_map_rev.get(self.temp_map.get(curr_pos[1]) + j)
+                    possible_moves.append((np1, np2))
+                except Exception as err:
+                    continue
 
-    def moves_for_bishop(self):
-        pass
+    def moves_for_queen(self, possible_moves):
+        self.moves_for_bishop(possible_moves)
+        self.moves_for_rook(possible_moves)
 
-    def moves_for_rook(self):
-        pass
+    def moves_for_bishop(self, possible_moves):
+
+        curr_pos = self.get_coord()
+        for x in range(8):
+            i, j = curr_pos
+            try:
+                possible_moves.append((str(int(i) + x), self.temp_map_rev.get(self.temp_map.get(j) + x)))
+            except Exception as err:
+                continue
+            try:
+                possible_moves.append((str(int(i) - x), self.temp_map_rev.get(self.temp_map.get(j) - x)))
+            except Exception as err:
+                continue
+            try:
+                possible_moves.append((str(int(i) - x), self.temp_map_rev.get(self.temp_map.get(j) + x)))
+            except Exception as err:
+                continue
+            try:
+                possible_moves.append((str(int(i) + x), self.temp_map_rev.get(self.temp_map.get(j) - x)))
+            except Exception as err:
+                continue
+
+    def moves_for_rook(self, possible_moves):
+        curr_pos = self.get_coord()
+        for i in range(-7, 8):
+            for j in range(-7, 8):
+                try:
+                    np1 = str(int(curr_pos[0]) + i)
+                    possible_moves.append((np1, curr_pos[1]))
+
+                    np2 = self.temp_map_rev.get(self.temp_map.get(curr_pos[1]) + j)
+                    if np2 is None:
+                        continue
+                    possible_moves.append((curr_pos[0], np2))
+
+                except Exception as err:
+                    continue
 
     def moves_for_knight(self):
         pass
